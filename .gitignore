@@ -1,0 +1,7 @@
+/target
+output.txt
+assets/*-Subset.ttf
+assets/*-Static.ttf
+assets/*-Dynamic.ttf
+assets/*.srt
+/examples

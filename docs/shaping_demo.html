@@ -1,0 +1,699 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <meta name="theme-color" content="#0d1117">
+    <meta name="description" content="Understand why Bengali localization needs proper OpenType shaping and how BornoForge helps optimize Bengali fonts for games.">
+
+    <title>BornoForge | Bengali OpenType Shaping</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Noto+Sans+Bengali:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            color-scheme: dark;
+
+            --bg: #0d1117;
+            --card: #161b22;
+            --card-inner: #1c2128;
+            --border: #30363d;
+            --text: #c9d1d9;
+            --muted: #8b949e;
+
+            --red: #f85149;
+            --green: #3fb950;
+            --blue: #58a6ff;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            padding: 40px 20px;
+
+            display: flex;
+            justify-content: center;
+            align-items: center;
+
+            background-color: var(--bg);
+            background-image:
+                linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px);
+
+            background-size: 40px 40px;
+
+            color: var(--text);
+            font-family: 'Inter', sans-serif;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1120px;
+        }
+
+        /* Header */
+
+        .header {
+            text-align: center;
+            margin-bottom: 42px;
+        }
+
+        .eyebrow {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+
+            padding: 7px 13px;
+            margin-bottom: 20px;
+
+            border: 1px solid var(--border);
+            border-radius: 100px;
+
+            color: var(--blue);
+            background: rgba(88,166,255,0.06);
+
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 1.3px;
+            text-transform: uppercase;
+        }
+
+        .eyebrow-dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background: var(--blue);
+            box-shadow: 0 0 10px var(--blue);
+        }
+
+        h1 {
+            margin: 0 0 14px;
+
+            color: #f0f6fc;
+            font-size: clamp(30px, 5vw, 46px);
+            line-height: 1.2;
+            font-weight: 800;
+            letter-spacing: -1.5px;
+        }
+
+        .subtitle {
+            max-width: 720px;
+            margin: 0 auto;
+
+            color: var(--muted);
+            font-size: 16px;
+            line-height: 1.7;
+        }
+
+        /* Comparison */
+
+        .comparison {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 22px;
+        }
+
+        .panel {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+
+            min-width: 0;
+            overflow: hidden;
+
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+        }
+
+        .panel::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 3px;
+        }
+
+        .panel-broken::before {
+            background: linear-gradient(90deg, #da3633, #f85149);
+        }
+
+        .panel-correct::before {
+            background: linear-gradient(90deg, #238636, #3fb950);
+        }
+
+        .panel-header {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+
+            min-height: 82px;
+            padding: 20px;
+
+            background: rgba(255,255,255,0.015);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .status-icon {
+            width: 30px;
+            height: 30px;
+            flex-shrink: 0;
+
+            display: grid;
+            place-items: center;
+
+            border-radius: 50%;
+            font-size: 18px;
+            font-weight: 700;
+        }
+
+        .broken-icon {
+            color: var(--red);
+            background: rgba(248,81,73,0.12);
+        }
+
+        .correct-icon {
+            color: var(--green);
+            background: rgba(63,185,80,0.12);
+        }
+
+        .panel-title {
+            margin: 0;
+            font-size: 17px;
+            font-weight: 700;
+        }
+
+        .panel-broken .panel-title {
+            color: var(--red);
+        }
+
+        .panel-correct .panel-title {
+            color: var(--green);
+        }
+
+        .panel-content {
+            flex: 1;
+
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+
+            gap: 34px;
+            min-height: 350px;
+            padding: 40px 24px;
+        }
+
+        /* Text examples */
+
+        .example {
+            width: 100%;
+            text-align: center;
+        }
+
+        .example-label {
+            margin-bottom: 16px;
+
+            color: var(--muted);
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 1.2px;
+            text-transform: uppercase;
+        }
+
+        .bengali {
+            font-family: 'Noto Sans Bengali', sans-serif;
+            line-height: 1.8;
+            overflow-wrap: anywhere;
+        }
+
+        .correct-text {
+            color: #f0f6fc;
+            font-size: clamp(48px, 6vw, 76px);
+            font-weight: 600;
+            text-shadow: 0 0 30px rgba(63,185,80,0.10);
+        }
+
+        /* Illustrative unshaped sequence */
+
+        .sequence {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            align-items: center;
+            gap: 7px;
+
+            min-height: 80px;
+            padding: 8px 0;
+        }
+
+        .sequence-part {
+            padding: 8px 10px;
+
+            border: 1px solid rgba(248,81,73,0.25);
+            border-radius: 8px;
+
+            background: rgba(248,81,73,0.06);
+            color: #c9a09e;
+
+            font-family: 'Noto Sans Bengali', sans-serif;
+            font-size: 27px;
+            line-height: 1.7;
+        }
+
+        .sequence-plus {
+            color: var(--muted);
+            font-size: 17px;
+        }
+
+        .example-caption {
+            margin-top: 12px;
+
+            color: var(--muted);
+            font-size: 12px;
+            line-height: 1.6;
+        }
+
+        .panel-broken .example-caption {
+            color: #d18b87;
+        }
+
+        .panel-correct .example-caption {
+            color: #56b96b;
+        }
+
+        /* Technical explanation */
+
+        .technical-note {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+
+            margin-top: 24px;
+        }
+
+        .note-item {
+            padding: 17px 19px;
+
+            background: rgba(22,27,34,0.8);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+        }
+
+        .note-item strong {
+            display: block;
+            margin-bottom: 6px;
+
+            color: #f0f6fc;
+            font-size: 13px;
+        }
+
+        .note-item p {
+            margin: 0;
+
+            color: var(--muted);
+            font-size: 12px;
+            line-height: 1.65;
+        }
+
+        code {
+            color: var(--blue);
+            font-family: 'SFMono-Regular', Consolas, monospace;
+        }
+
+        /* BornoForge explanation */
+
+        .bornoforge-note {
+            margin-top: 24px;
+            padding: 24px;
+
+            background:
+                linear-gradient(120deg,
+                    rgba(88,166,255,0.08),
+                    rgba(63,185,80,0.035));
+
+            border: 1px solid rgba(88,166,255,0.2);
+            border-radius: 14px;
+        }
+
+        .bornoforge-heading {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+
+            margin-bottom: 10px;
+
+            color: #f0f6fc;
+            font-size: 17px;
+            font-weight: 700;
+        }
+
+        .brand-mark {
+            display: grid;
+            place-items: center;
+
+            width: 30px;
+            height: 30px;
+
+            border-radius: 8px;
+            background: rgba(88,166,255,0.12);
+            color: var(--blue);
+
+            font-family: 'Noto Sans Bengali', sans-serif;
+            font-weight: 700;
+        }
+
+        .bornoforge-note p {
+            margin: 0;
+
+            color: var(--muted);
+            font-size: 13px;
+            line-height: 1.8;
+        }
+
+        .bornoforge-note strong {
+            color: #c9d1d9;
+        }
+
+        /* Footer */
+
+        .footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 15px;
+
+            margin-top: 25px;
+            padding-top: 17px;
+
+            border-top: 1px solid var(--border);
+
+            color: var(--muted);
+            font-size: 11px;
+        }
+
+        .footer-brand {
+            color: #8b949e;
+            font-weight: 700;
+            letter-spacing: 0.8px;
+        }
+
+        @media (max-width: 720px) {
+            body {
+                padding: 30px 14px;
+            }
+
+            .comparison {
+                grid-template-columns: 1fr;
+            }
+
+            .panel-content {
+                min-height: 280px;
+            }
+
+            .technical-note {
+                grid-template-columns: 1fr;
+            }
+
+            .header {
+                margin-bottom: 30px;
+            }
+
+            .subtitle {
+                font-size: 14px;
+            }
+
+            .footer {
+                flex-direction: column;
+                text-align: center;
+            }
+        }
+
+        @media (prefers-reduced-motion: no-preference) {
+            .panel {
+                transition: border-color 0.2s ease;
+            }
+
+            .panel:hover {
+                border-color: #484f58;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<main class="container">
+
+    <!-- Header -->
+
+    <header class="header">
+
+        <div class="eyebrow">
+            <span class="eyebrow-dot"></span>
+            The Bengali Localization Problem
+        </div>
+
+        <h1>
+            Bengali Needs More Than a Font
+        </h1>
+
+        <p class="subtitle">
+            Why proper OpenType shaping matters when bringing Bengali
+            localization to games and interactive applications.
+        </p>
+
+    </header>
+
+
+    <!-- Comparison -->
+
+    <section class="comparison" aria-label="Bengali shaping comparison">
+
+        <!-- Without shaping -->
+
+        <article class="panel panel-broken">
+
+            <header class="panel-header">
+
+                <div class="status-icon broken-icon" aria-hidden="true">
+                    ×
+                </div>
+
+                <h2 class="panel-title">
+                    Without OpenType Shaping
+                </h2>
+
+            </header>
+
+            <div class="panel-content">
+
+                <div class="example">
+
+                    <div class="example-label">
+                        Example 01 · অস্ত্রটি
+                    </div>
+
+                    <div class="sequence" aria-label="Illustrative character sequence: অ, স্, ত্র, টি">
+
+                        <span class="sequence-part">অ</span>
+                        <span class="sequence-plus">+</span>
+                        <span class="sequence-part">স্</span>
+                        <span class="sequence-plus">+</span>
+                        <span class="sequence-part">ত্র</span>
+                        <span class="sequence-plus">+</span>
+                        <span class="sequence-part">টি</span>
+
+                    </div>
+
+                    <p class="example-caption">
+                        Conjunct formation and vowel positioning
+                        cannot be assumed without a shaping engine.
+                    </p>
+
+                </div>
+
+
+                <div class="example">
+
+                    <div class="example-label">
+                        Example 02 · লক্ষ্মী
+                    </div>
+
+                    <div class="sequence" aria-label="Illustrative character sequence: ল, ক্, ষ্, মী">
+
+                        <span class="sequence-part">ল</span>
+                        <span class="sequence-plus">+</span>
+                        <span class="sequence-part">ক্</span>
+                        <span class="sequence-plus">+</span>
+                        <span class="sequence-part">ষ্</span>
+                        <span class="sequence-plus">+</span>
+                        <span class="sequence-part">মী</span>
+
+                    </div>
+
+                    <p class="example-caption">
+                        Character sequences require contextual
+                        glyph substitutions and positioning.
+                    </p>
+
+                </div>
+
+            </div>
+
+        </article>
+
+
+        <!-- With shaping -->
+
+        <article class="panel panel-correct">
+
+            <header class="panel-header">
+
+                <div class="status-icon correct-icon" aria-hidden="true">
+                    ✓
+                </div>
+
+                <h2 class="panel-title">
+                    With OpenType Shaping
+                </h2>
+
+            </header>
+
+            <div class="panel-content">
+
+                <div class="example">
+
+                    <div class="example-label">
+                        Example 01 · Correctly Shaped
+                    </div>
+
+                    <div class="bengali correct-text" lang="bn">
+                        অস্ত্রটি
+                    </div>
+
+                    <p class="example-caption">
+                        Properly formed conjuncts and correctly
+                        positioned vowel signs.
+                    </p>
+
+                </div>
+
+
+                <div class="example">
+
+                    <div class="example-label">
+                        Example 02 · Correctly Shaped
+                    </div>
+
+                    <div class="bengali correct-text" lang="bn">
+                        লক্ষ্মী
+                    </div>
+
+                    <p class="example-caption">
+                        Contextual glyph substitutions preserve
+                        the intended Bengali orthography.
+                    </p>
+
+                </div>
+
+            </div>
+
+        </article>
+
+    </section>
+
+
+    <!-- Technical explanation -->
+
+    <section class="technical-note" aria-label="OpenType explanation">
+
+        <div class="note-item">
+
+            <strong>
+                GSUB · Glyph Substitution
+            </strong>
+
+            <p>
+                Replaces character sequences with appropriate
+                glyphs, enabling Bengali conjunct formation
+                and contextual substitutions.
+            </p>
+
+        </div>
+
+        <div class="note-item">
+
+            <strong>
+                GPOS · Glyph Positioning
+            </strong>
+
+            <p>
+                Positions glyphs relative to one another,
+                handling mark placement, offsets, and
+                other positioning adjustments.
+            </p>
+
+        </div>
+
+    </section>
+
+
+    <!-- BornoForge -->
+
+    <section class="bornoforge-note">
+
+        <div class="bornoforge-heading">
+
+            <span class="brand-mark" aria-hidden="true">ব</span>
+
+            BornoForge: Smaller Fonts, Preserved Shaping
+
+        </div>
+
+        <p>
+            BornoForge is a build-time font optimization tool
+            designed for Bengali game localization. It generates
+            compact, corpus-specific font subsets while validating
+            that the original font's OpenType shaping behavior
+            is preserved.
+
+            <strong>
+                Keep your existing rendering pipeline.
+                Optimize your Bengali font assets without
+                sacrificing the shaping your text depends on.
+            </strong>
+        </p>
+
+    </section>
+
+
+    <!-- Footer -->
+
+    <footer class="footer">
+
+        <span class="footer-brand">
+            BORNOFORGE
+        </span>
+
+        <span>
+            Built for better Bengali localization.
+        </span>
+
+    </footer>
+
+</main>
+
+</body>
+</html>
