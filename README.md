@@ -93,8 +93,8 @@ Benchmarks were performed using `NotoSansBengali-Regular.ttf` on a desktop works
 
 | Corpus | Mode | Output Size | Reduction | Unique Glyphs Kept | Shaped Glyph Instances Verified | Build Time |
 |:--|:--|--:|--:|--:|--:|--:|
-| **RPG UI** (`bn.json`) | Static | 47.49 KB | **89.5%** | 150 / 730 | 337 | 91.89 ms |
-| **RPG UI** (`bn.json`) | Dynamic | 87.20 KB | **80.7%** | 287 / 730 | 337 | 21.50 ms |
+| **RPG UI** (`bn.json`) | Static | 36.56 KB | **91.9%** | 116 / 730 | 346 | 148.48 ms |
+| **RPG UI** (`bn.json`) | Dynamic | 85.37 KB | **81.1%** | 275 / 730 | 346 | 73.14 ms |
 | **Pather Panchali** (`.srt`) | Static | 76.40 KB | **83.1%** | 258 / 730 | 24,484 | 187.77 ms |
 | **Pather Panchali** (`.srt`) | Dynamic | 108.54 KB | **76.0%** | 373 / 730 | 24,484 | 113.46 ms |
 

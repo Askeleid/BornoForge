@@ -1,4 +1,5 @@
 use crate::shaper::Shaper;
+use read_fonts::TableProvider;
 use clap::ValueEnum;
 use read_fonts::{
     FontRef,
@@ -14,6 +15,11 @@ pub enum SubsetMode {
     Dynamic,
     /// Retains ONLY the exact glyphs and in-flight GSUB intermediates needed for the static script
     Static,
+}
+
+pub fn count_unique_glyphs(font_bytes: &[u8]) -> u16 {
+    let font_ref = FontRef::new(font_bytes).expect("Failed to parse font");
+    font_ref.maxp().map(|m| m.num_glyphs()).unwrap_or(0)
 }
 
 pub fn build_subset_font(shaper: &Shaper, phrases: &[String], mode: SubsetMode) -> Vec<u8> {

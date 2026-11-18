@@ -69,6 +69,8 @@ fn main() {
 
     let elapsed = timer.elapsed();
     let reduction = 100.0 * (1.0 - (subset_len as f64 / orig_len as f64));
+    let orig_glyphs = subsetter::count_unique_glyphs(orig_shaper.font_bytes());
+    let sub_glyphs = subsetter::count_unique_glyphs(sub_shaper.font_bytes());
 
     println!("====================================================");
     println!(" bgl10n - Bengali Game Font Optimizer & Validator");
@@ -84,9 +86,9 @@ fn main() {
     println!("Original Font     : {:.2} KB ({} bytes)", orig_len as f64 / 1024.0, orig_len);
     println!("Subset Font       : {:.2} KB ({} bytes) [-{:.1}%]", subset_len as f64 / 1024.0, subset_len, reduction);
     println!("Output Saved To   : {}", args.output);
+    println!("Unique Glyphs     : {} / {}", sub_glyphs, orig_glyphs);
     println!("Shaping Diff Gate : PASSED ({} shaped glyphs verified across {} strings)", verified_glyphs, phrases.len());
     println!("Build Time        : {:.2?}", elapsed);
-    println!("====================================================");
+    println!("====================================================");   
 
-    
 }
