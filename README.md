@@ -147,7 +147,7 @@ BornoForge also includes a browser-based Bengali shaping demonstration powered b
 
 The demo allows you to enter Bengali text and compare glyph rendering without OpenType shaping against HarfRust-shaped output, alongside the underlying glyph information.
 
-[View the demo source](web-demo/index.html)
+[View the demo source](https://askeleid.github.io/BornoForge/web-demo/index.html)
 
 To run the demo locally, start a server from the project root:
 
